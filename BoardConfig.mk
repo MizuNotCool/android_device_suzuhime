@@ -1,6 +1,5 @@
 # Common
 DEVICE_PATH := device/samsung/a10s
-COMMON_PATH := device/samsung/a10s
 BOARD_VENDOR := samsung
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv8-a
@@ -24,7 +23,7 @@ TARGET_USES_UEFI := true
 
 
 # Kernel
-BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2 androidboot.selinux=enforcing
 BOARD_KERNEL_BASE := 0x40078000
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x11a88000 --second_offset 0x00e88000 --tags_offset 0x07808000
@@ -59,16 +58,17 @@ TARGET_USERIMAGES_USE_F2FS := true
 BOARD_PREBUILT_VENDORIMAGE := device/samsung/a10s/vendor.img
 
 # Recovery
-TARGET_RECOVERY_FSTAB := $(COMMON_PATH)/rootdir/etc/recovery.fstab
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/etc/recovery.fstab
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_SPARSE_EXT_DISABLED := false
 
 # Releasetools
-TARGET_RELEASETOOLS_EXTENSIONS := $(COMMON_PATH)/releasetools
+TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)/releasetools
 
 # SELinux
-BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(COMMON_PATH)/sepolicy/private
-BOARD_PLAT_PUBLIC_SEPOLICY_DIR += $(COMMON_PATH)/sepolicy/public
+include device/mediatek/sepolicy/sepolicy.mk
+BOARD_PLAT_PUBLIC_SEPOLICY_DIR += $(DEVICE_PATH)/sepolicy/public
+BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(DEVICE_PATH)/sepolicy/private
 
 # Symbols
 TARGET_LD_SHIM_LIBS := /system/lib/libshowlogo.so|libshim_showlogo.so
@@ -87,6 +87,9 @@ VENDOR_SECURITY_PATCH := 2020-03-05
 
 # AUDIO
 USE_XML_AUDIO_POLICY_CONF := 1
+
+# Media
+TARGET_USES_MEDIA_EXTENSIONS := true
 
 # Android Verified Boot
 BOARD_AVB_ENABLE := false
@@ -109,9 +112,12 @@ BOARD_VNDK_VERSION := current
 # Vendor
 TARGET_COPY_OUT_VENDOR := vendor
 
+# APEX image
+DEXPREOPT_GENERATE_APEX_IMAGE := true
+
 # Lineage hardware
 BOARD_HARDWARE_CLASS += \
-    $(COMMON_PATH)/lineagehw
+    $(DEVICE_PATH)/lineagehw
 
 # DEX Pre-optimization
 ifeq ($(HOST_OS),linux)
@@ -129,6 +135,6 @@ DEVICE_MATRIX_FILE := $(DEVICE_PATH)/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := $(DEVICE_PATH)/framework_compatibility_matrix.xml
 
 # OTA Assert
-TARGET_OTA_ASSERT_DEVICE := a10s
+TARGET_OTA_ASSERT_DEVICE := a10s,a10sxx,suzuhime
 
 -include vendor/samsung/a10s/BoardConfigVendor.mk
